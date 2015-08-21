@@ -20,6 +20,8 @@ task fvtBuild(type: Test, dependsOn: jar) {
     classpath = sourceSets.fvtBuild.runtimeClasspath
     dependsOn publishWar, libertyStart
     finalizedBy libertyStop
+    reports.html.destination = file("$buildDir/reports/fvtBuild")
+    reports.junitXml.destination = file("$buildDir/test-results/fvtBuild")
 }
 
 check.dependsOn fvtBuild
