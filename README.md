@@ -1,2 +1,1 @@
-# sample.functionaltest
-Repository to demonstrate different ways to write funcational tests for Liberty.
+This project is a work in progress to eventually show different techniques to test functionality of an application deployed on Liberty.

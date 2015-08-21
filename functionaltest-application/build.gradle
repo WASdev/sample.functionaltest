@@ -1,0 +1,78 @@
+apply plugin: 'war'
+apply plugin: 'eclipse-wtp'
+//apply from: 'fvtBuild.gradle'
+
+// Dependencies
+repositories { mavenCentral(); }
+
+dependencies {
+    providedCompile group:'javax.servlet', name:'javax.servlet-api', version:'3.1.0'
+    testCompile 'junit:junit:4.12'
+}
+
+sourceCompatibility = 1.7
+
+// Set the Eclipse facets to use 3.1 of the Dynamic Web Module which requires Java 1.7 by default.
+eclipse.wtp.facet {
+    // Clear default facets to work around bug where you get duplicates including wst 2.4
+    facets = []
+    facet name: 'jst.java', type: 'fixed'
+    facet name: 'jst.web', type: 'fixed'
+    facet name: 'jst.web', version: '3.1'
+    facet name: 'jst.java', version: '1.7'
+}
+
+// Copy WAR into the local usr dir
+task publishWar(dependsOn: 'jar', type: Copy) {
+    from(war)
+    into('../functionaltest-wlpcfg/servers/functionalTestSample/apps')
+}
+
+assemble.dependsOn('publishWar')
+
+// Use the Liberty Gradle plugin to run our functional tests
+apply plugin: 'liberty'
+
+buildscript {
+    repositories {
+        mavenCentral()
+        maven {
+            name = 'Sonatype Nexus Snapshots'
+            url = 'https://oss.sonatype.org/content/repositories/snapshots/'
+        }
+    }
+    dependencies {
+        classpath 'net.wasdev.wlp.gradle.plugins:liberty-gradle-plugin:1.0-SNAPSHOT'
+    }
+}
+
+// Add a source set for doing functional tests against a running Liberty
+sourceSets {
+    fvtBuild
+}
+
+dependencies {
+    fvtBuildCompile configurations.testCompile
+    fvtBuildRuntime configurations.testRuntime
+}
+
+task fvtBuild(type: Test, dependsOn: jar) {
+    group 'Verification'
+    description 'Runs the functional verification tests by using Gradle to start and stop the liberty server prior to running all the tests.'
+    testClassesDir = sourceSets.fvtBuild.output.classesDir
+    classpath = sourceSets.fvtBuild.runtimeClasspath
+    dependsOn publishWar, libertyStart
+    finalizedBy libertyStop
+}
+
+libertyStart.mustRunAfter publishWar
+
+liberty {
+    wlpDir = "${libertyRoot}"
+    serverName = 'functionalTestSample'
+    userDir = '../functionaltest-wlpcfg'
+    // Clean is only supported on the latest Liberty Gradle plugin which isn't on Maven yet
+//    clean = true
+}
+
+check.dependsOn fvtBuild

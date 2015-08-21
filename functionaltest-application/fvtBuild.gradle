@@ -1,0 +1,46 @@
+// Use the Liberty Gradle plugin to run our functional tests
+apply plugin: net.wasdev.wlp.gradle.plugins.Liberty
+
+buildscript {
+    repositories {
+        mavenCentral()
+        maven {
+            name = 'Sonatype Nexus Snapshots'
+            url = 'https://oss.sonatype.org/content/repositories/snapshots/'
+        }
+    }
+    dependencies {
+        classpath 'net.wasdev.wlp.gradle.plugins:liberty-gradle-plugin:1.0-SNAPSHOT'
+    }
+}
+
+// Add a source set for doing functional tests against a running Liberty
+sourceSets {
+    fvtBuild
+}
+
+dependencies {
+    fvtBuildCompile configurations.testCompile
+    fvtBuildRuntime configurations.testRuntime
+}
+
+task fvtBuild(type: Test, dependsOn: jar) {
+    group 'Verification'
+    description 'Runs the functional verification tests by using Gradle to start and stop the liberty server prior to running all the tests.'
+    testClassesDir = sourceSets.fvtBuild.output.classesDir
+    classpath = sourceSets.fvtBuild.runtimeClasspath
+    dependsOn publishWar, libertyStart
+    finalizedBy libertyStop
+}
+
+libertyStart.mustRunAfter publishWar
+
+liberty {
+    wlpDir = "${libertyRoot}"
+    serverName = 'functionalTestSample'
+    userDir = '../functionaltest-wlpcfg'
+    // Clean is only supported on the latest Liberty Gradle plugin which isn't on Maven yet
+//    clean = true
+}
+
+check.dependsOn fvtBuild
