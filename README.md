@@ -1,1 +1,1 @@
-This project is a work in progress to eventual show different techniques to test functaionality of an application deployed on Liberty.
+This project is a work in progress to eventually show different techniques to test functionality of an application deployed on Liberty.
