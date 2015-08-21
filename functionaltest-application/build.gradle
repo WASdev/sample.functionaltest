@@ -1,6 +1,5 @@
 apply plugin: 'war'
 apply plugin: 'eclipse-wtp'
-//apply from: 'fvtBuild.gradle'
 
 // Dependencies
 repositories { mavenCentral(); }
@@ -30,9 +29,11 @@ task publishWar(dependsOn: 'jar', type: Copy) {
 
 assemble.dependsOn('publishWar')
 
-// Use the Liberty Gradle plugin to run our functional tests
-apply plugin: 'liberty'
+// Add the FVTs as separate build files so that it is clear what is required for each
 
+// There is an issue with Gradle whereby you are only allowed buildscript{} blocks in the root file
+// so as we use the Liberty Gradle plugin in one of the examples we need to include it here.  This
+// build code is only required for the "fvtBuild" example 
 buildscript {
     repositories {
         mavenCentral()
@@ -46,33 +47,4 @@ buildscript {
     }
 }
 
-// Add a source set for doing functional tests against a running Liberty
-sourceSets {
-    fvtBuild
-}
-
-dependencies {
-    fvtBuildCompile configurations.testCompile
-    fvtBuildRuntime configurations.testRuntime
-}
-
-task fvtBuild(type: Test, dependsOn: jar) {
-    group 'Verification'
-    description 'Runs the functional verification tests by using Gradle to start and stop the liberty server prior to running all the tests.'
-    testClassesDir = sourceSets.fvtBuild.output.classesDir
-    classpath = sourceSets.fvtBuild.runtimeClasspath
-    dependsOn publishWar, libertyStart
-    finalizedBy libertyStop
-}
-
-libertyStart.mustRunAfter publishWar
-
-liberty {
-    wlpDir = "${libertyRoot}"
-    serverName = 'functionalTestSample'
-    userDir = '../functionaltest-wlpcfg'
-    // Clean is only supported on the latest Liberty Gradle plugin which isn't on Maven yet
-//    clean = true
-}
-
-check.dependsOn fvtBuild
+apply from: 'fvtBuild.gradle'

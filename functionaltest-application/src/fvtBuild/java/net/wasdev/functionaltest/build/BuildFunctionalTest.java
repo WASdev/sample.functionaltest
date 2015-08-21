@@ -10,6 +10,9 @@ import java.net.URL;
 
 import org.junit.Test;
 
+/**
+ * This FVT uses the build system to start and stop the server.  Therefore there isn't much in here other than the tests themselves.
+ */
 public class BuildFunctionalTest {
 
     @Test
