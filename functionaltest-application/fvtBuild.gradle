@@ -1,25 +1,7 @@
 // Use the Liberty Gradle plugin to start and stop the test server prior to running our functional tests
 
-// First tell Gradle about the Liberty plugin
-buildscript {
-    repositories {
-        mavenCentral()
-        maven {
-            name = 'Sonatype Nexus Snapshots'
-            url = 'https://oss.sonatype.org/content/repositories/snapshots/'
-        }
-    }
-    dependencies {
-        classpath 'net.wasdev.wlp.gradle.plugins:liberty-gradle-plugin:1.0-SNAPSHOT'
-    }
-}
-
-// Now apply the plugin. Note there is an issue with putting an "apply plugin" statement
-// in a Gradle include file such as this in that it doesn't support the short ID of the
-// plugin. If this was in the top level build.gradle file this could be simplified to:
-// apply plugin: 'liberty'
-apply plugin: net.wasdev.wlp.gradle.plugins.Liberty
-
+// Note the build.gradle file has already added the Liberty Gradle plugin to the classpath for us.
+apply plugin: 'liberty'
 
 // Add a source set for doing functional tests against a running Liberty
 sourceSets {
