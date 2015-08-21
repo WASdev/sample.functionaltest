@@ -1,6 +1,6 @@
-// Use the Liberty Gradle plugin to run our functional tests
-apply plugin: net.wasdev.wlp.gradle.plugins.Liberty
+// Use the Liberty Gradle plugin to start and stop the test server prior to running our functional tests
 
+// First tell Gradle about the Liberty plugin
 buildscript {
     repositories {
         mavenCentral()
@@ -14,16 +14,23 @@ buildscript {
     }
 }
 
+// Now apply the plugin. Note there is an issue with putting an "apply plugin" statement
+// in a Gradle include file such as this in that it doesn't support the short ID of the
+// plugin. If this was in the top level build.gradle file this could be simplified to:
+// apply plugin: 'liberty'
+apply plugin: net.wasdev.wlp.gradle.plugins.Liberty
+
+
 // Add a source set for doing functional tests against a running Liberty
 sourceSets {
     fvtBuild
 }
-
 dependencies {
     fvtBuildCompile configurations.testCompile
     fvtBuildRuntime configurations.testRuntime
 }
 
+// Create a task to actually run the tests
 task fvtBuild(type: Test, dependsOn: jar) {
     group 'Verification'
     description 'Runs the functional verification tests by using Gradle to start and stop the liberty server prior to running all the tests.'
@@ -33,14 +40,15 @@ task fvtBuild(type: Test, dependsOn: jar) {
     finalizedBy libertyStop
 }
 
+check.dependsOn fvtBuild
+
+// Set the ordering so we only start the server after the WAR has been published
 libertyStart.mustRunAfter publishWar
 
+// Tell the liberty plugin about the server to use in the test
 liberty {
     wlpDir = "${libertyRoot}"
     serverName = 'functionalTestSample'
     userDir = '../functionaltest-wlpcfg'
-    // Clean is only supported on the latest Liberty Gradle plugin which isn't on Maven yet
-//    clean = true
+    clean = true
 }
-
-check.dependsOn fvtBuild
