@@ -1,0 +1,36 @@
+// Use a JUnit rule to start and stop the server using the Liberty API for doing so as documented here:
+// http://www-01.ibm.com/support/knowledgecenter/SSAW57_8.5.5/com.ibm.websphere.wlp.nd.multiplatform.doc/ae/twlp_extend_embed.html?lang=en
+
+// First separate our code into a new source set
+sourceSets {
+    fvtRule
+}
+
+dependencies {
+    fvtRuleCompile configurations.testCompile
+    fvtRuleRuntime configurations.testRuntime
+    
+    // Also include in the compile the Liberty JAR that contains the code to start and stop the server
+    fvtRuleCompile fileTree(dir: "${libertyRoot}/bin/tools", include: 'ws-server.jar')
+}
+
+// Make sure Eclipse generates the classpath to include the ws-server JAR
+eclipse {
+    classpath {
+        plusConfigurations += [configurations.fvtRuleCompile]
+    }
+}
+
+// Add a task to run the test that also passes the location of the liberty install via a system property
+task fvtRule(type: Test, dependsOn: jar) {
+    group 'Verification'
+    description 'Runs the functional verification tests by using a JUnit rule to start and stop the liberty server prior to running all the tests.'
+    testClassesDir = sourceSets.fvtRule.output.classesDir
+    classpath = sourceSets.fvtRule.runtimeClasspath
+    systemProperties = ['liberty.usr.dir': file('../functionaltest-wlpcfg'), 'liberty.server.name': 'functionalTestSample']
+    dependsOn publishWar
+    reports.html.destination = file("$buildDir/reports/fvtRule")
+    reports.junitXml.destination = file("$buildDir/test-results/fvtRule")
+}
+
+check.dependsOn fvtRule

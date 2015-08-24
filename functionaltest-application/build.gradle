@@ -29,6 +29,11 @@ task publishWar(dependsOn: 'jar', type: Copy) {
 
 assemble.dependsOn('publishWar')
 
+test {
+    reports.html.destination = file("$buildDir/reports/unit")
+    reports.junitXml.destination = file("$buildDir/test-results/unit")
+}
+
 // Add the FVTs as separate build files so that it is clear what is required for each
 
 // There is an issue with Gradle whereby you are only allowed buildscript{} blocks in the root file
@@ -48,3 +53,4 @@ buildscript {
 }
 
 apply from: 'fvtBuild.gradle'
+apply from: 'fvtRule.gradle'
