@@ -54,3 +54,4 @@ buildscript {
 
 apply from: 'fvtBuild.gradle'
 apply from: 'fvtRule.gradle'
+apply from: 'fvtArquillian.gradle'
