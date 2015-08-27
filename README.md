@@ -6,7 +6,7 @@ This repository shows three techniques for running functional tests of an applic
 
 It is the code that backs up an article explaining the techniques in more detail here:
 
-[https://developer.ibm.com/wasdev/docs/writing-functional-tests-liberty]
+https://developer.ibm.com/wasdev/docs/writing-functional-tests-liberty
 
 To run the sample you must have Gradle and Liberty (with the servlet-3.1 feature) installed and then do the following:
 
