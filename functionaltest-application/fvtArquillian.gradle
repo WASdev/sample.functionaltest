@@ -1,0 +1,49 @@
+// Use a Arquillian to start and stop the server
+
+// First separate our code into a new source set, it needs to include the output from the main source set so that it can run shrink wrap
+sourceSets {
+    fvtArquillian {
+        java {
+            compileClasspath += main.output
+            runtimeClasspath += main.output
+        }
+    }
+}
+
+dependencies {
+    fvtArquillianCompile configurations.testCompile
+    fvtArquillianRuntime configurations.testRuntime
+    
+    // Also include in the compile the Arquillian JAR that contains the code to start and stop the server
+    fvtArquillianCompile 'org.jboss.arquillian.container:arquillian-wlp-managed-8.5:1.0.0.Beta2'
+    fvtArquillianCompile 'org.jboss.arquillian.junit:arquillian-junit-container:1.1.8.Final'
+    // Arquillian uses some com.sun.x classes from the tools.jar so include this
+    fvtArquillianCompile files("${System.properties['java.home']}/../lib/tools.jar")
+}
+
+// Make sure Eclipse generates the classpath to include the arquillian JAR
+eclipse {
+    classpath {
+        plusConfigurations += [configurations.fvtArquillianCompile]
+    }
+}
+
+task setupServer(type: Copy) {
+    description 'Sets up the server for Arquillian to use'
+    from sourceSets.fvtArquillian.output.resourcesDir
+    into file("${libertyRoot}/usr/servers/functionalTestSample")
+}
+
+// Add a task to run the test that also passes the location of the liberty install via a system property
+task fvtArquillian(type: Test, dependsOn: jar) {
+    group 'Verification'
+    description 'Runs the functional verification tests by using a JUnit rule to start and stop the liberty server prior to running all the tests.'
+    testClassesDir = sourceSets.fvtArquillian.output.classesDir
+    classpath = sourceSets.fvtArquillian.runtimeClasspath
+    systemProperties = ['liberty.install.dir': "${libertyRoot}"]
+    dependsOn setupServer
+    reports.html.destination = file("$buildDir/reports/fvtArquillian")
+    reports.junitXml.destination = file("$buildDir/test-results/fvtArquillian")
+}
+
+check.dependsOn fvtArquillian
