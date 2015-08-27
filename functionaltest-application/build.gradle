@@ -52,6 +52,10 @@ buildscript {
     }
 }
 
+if (!file("${libertyRoot}").exists()) {
+    throw new InvalidUserDataException('The "libertyRoot" property is not set to an existing directory. Please set it in gradle.properties to point to a Liberty installation.')
+}
+
 apply from: 'fvtBuild.gradle'
 apply from: 'fvtRule.gradle'
 apply from: 'fvtArquillian.gradle'
