@@ -7,7 +7,7 @@
 	</engine>
 	<container qualifier="websphere" default="true">
 		<configuration>
-			<property name="wlpHome">C:\install\wlp\8556\GM\wlp</property>
+			<property name="wlpHome">${liberty.install.dir}</property>
 			<property name="serverName">functionalTestSample</property>
 		</configuration>
 	</container>

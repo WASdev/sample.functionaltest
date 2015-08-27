@@ -40,6 +40,7 @@ task fvtArquillian(type: Test, dependsOn: jar) {
     description 'Runs the functional verification tests by using a JUnit rule to start and stop the liberty server prior to running all the tests.'
     testClassesDir = sourceSets.fvtArquillian.output.classesDir
     classpath = sourceSets.fvtArquillian.runtimeClasspath
+    systemProperties = ['liberty.install.dir': "${libertyRoot}"]
     dependsOn setupServer
     reports.html.destination = file("$buildDir/reports/fvtArquillian")
     reports.junitXml.destination = file("$buildDir/test-results/fvtArquillian")
