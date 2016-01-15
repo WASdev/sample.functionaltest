@@ -31,7 +31,7 @@ libertyStart.mustRunAfter publishWar
 
 // Tell the liberty plugin about the server to use in the test
 liberty {
-    wlpDir = "${libertyRoot}"
+    installDir = "${libertyRoot}"
     serverName = 'functionalTestSample'
     userDir = '../functionaltest-wlpcfg'
     clean = true

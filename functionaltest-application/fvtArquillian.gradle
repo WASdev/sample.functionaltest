@@ -16,7 +16,7 @@ dependencies {
     
     // Also include in the compile the Arquillian JAR that contains the code to start and stop the server
     fvtArquillianCompile 'org.jboss.arquillian.container:arquillian-wlp-managed-8.5:1.0.0.Beta2'
-    fvtArquillianCompile 'org.jboss.arquillian.junit:arquillian-junit-container:1.1.8.Final'
+    fvtArquillianCompile 'org.jboss.arquillian.junit:arquillian-junit-container:1.1.10.Final'
     // Arquillian uses some com.sun.x classes from the tools.jar so include this
     fvtArquillianCompile files("${System.properties['java.home']}/../lib/tools.jar")
 }
